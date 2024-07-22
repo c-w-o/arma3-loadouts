@@ -476,9 +476,9 @@ fnc_set_loadout = {
 	};
 
 	private _backpack_content= _loadout getOrDefault ["backpack_content", nil];
-	systemChat format ["_backpack_content2: %1", _backpack_content];
+	//systemChat format ["_backpack_content2: %1", _backpack_content];
 	if( not isNil "_backpack_content" ) then {
-			systemChat format ["_backpack_content: %1", _backpack_content];
+			//systemChat format ["_backpack_content: %1", _backpack_content];
 		{ 
 			for "_i" from 1 to (_x select 0) do {
 				_unit addItemToBackpack (_x select 1);
@@ -517,30 +517,8 @@ create_loadout_action = {
 	_action;
 };
 
-
 fcn_loadout_menu={
-	/*
-		Parameters:	_object 	- das object an dem das ACE Menu angebracht werden setCollisionLight
-					_menu_tree 	- ein HashMap Baum mit zwei ebenen (vorerst), details weiter unten.
-
-		Der HashMap Baum muss folgendermaßen aufgebaut sein:
-		Erste Ebene muss den Namen (der auch für das Menü verwendet wird) und entweder 
-			- CODE (Funktion, die ausgeführt werde soll)
-			- ARRAY (erstes Element ist CODE - Funktion zum ausführen, zweites Element ist der _DRITTE_ Parameter der Funktion)
-			- HASHMAP (identischer Aufbau zu dieser für das Submenü, nicht in der 2. Ebene erlaubt)
-		sein.
-
-		Beispiel:
-		_unit_classes=createHashMapFromArray [
-			[ "Option A", fcn_dummy ],						/* CODE *//*
-			[ "Option B", createHashMapFromArray [
-					["Option B-1", fcn_dummy],				/* CODE *//*
-					["Option B-2", [fcn_dummy, "test"]]		/* ARRAY *//*
-			]
-		];
-	*/
-	params ["_object", "_menu_tree", "_default_loadout"];
-	//systemChat format ["menu: %1", _object];
+	params ["_object", "_menu_tree", "_default_loadout", ["_path", ["ACE_MainActions"]]];
 	private _prefix_num=0;
 	{
 		private _menu_name=_x;
@@ -549,50 +527,33 @@ fcn_loadout_menu={
 		_menu_id=_menu_id joinString "";
 		_menu_id= format ["%1_%2", _prefix_num, _menu_id];
 		private _submenu=_y;
-		private _action1=nil;
+		private _action=nil;
 
 		if( (typeName _submenu) isEqualTo "CODE" ) then {
-			_action1=[ _menu_id, _menu_name, "", fnc_set_loadout, {true}, {}, [_default_loadout] call _submenu, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+			_action=[ _menu_id, _menu_name, "", fnc_set_loadout, {true}, {}, [_default_loadout] call _submenu, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
 		};
 		if( (typeName _submenu) isEqualTo "ARRAY" ) then {
-			_action1=[ _menu_id, _menu_name, "", (_submenu select 0), {true}, {}, (_submenu select 1), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+			_action=[ _menu_id, _menu_name, "", (_submenu select 0), {true}, {}, (_submenu select 1), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
 		};
 		if( (typeName _submenu) isEqualTo "HASHMAP" ) then {
-			_action1=[ _menu_id, _menu_name, "", {}, {true}, {}, objNull, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+			_action=[ _menu_id, _menu_name, "", {}, {true}, {}, objNull, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
 		};
-		
-		if( not isNil "_action1" ) then {
-			[_object, 0, ["ACE_MainActions"], _action1] call ace_interact_menu_fnc_addActionToObject;
+
+		systemChat format ["lm2: %1 - %2", _path, _menu_name];
+		if( not isNil "_action" ) then {
+			[_object, 0, _path, _action] call ace_interact_menu_fnc_addActionToObject;
 			_prefix_num=_prefix_num+1;
-		
+			private _new_path = + _path + [_menu_id];
 			if( (typeName _submenu) isEqualTo "HASHMAP" ) then {
-				{
-					private _sub_menu_name=_x;
-					private _sub_menu_id=_sub_menu_name trim ["äöüÖÄÜß", 0];
-					_sub_menu_id=_sub_menu_id  splitString "-,. äöüÖÄÜß";
-					_sub_menu_id=_sub_menu_id joinString "";
-					_sub_menu_id= format ["%1_%2", _prefix_num, _sub_menu_id];
-					private _sub_submenu=_y;
-					private _action2=nil;
-					if( (typeName _sub_submenu) isEqualTo "CODE" ) then {
-						_action2=[ _sub_menu_id, _sub_menu_name, "", fnc_set_loadout, {true}, {}, [_default_loadout] call _sub_submenu, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
-					};
-					if( (typeName _sub_submenu) isEqualTo "ARRAY" ) then {
-						_action2=[ _sub_menu_id, _sub_menu_name, "", (_sub_submenu select 0), {true}, {}, (_sub_submenu select 1), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
-					};
-					if( not isNil "_action2" ) then {
-						//systemChat format["sub id %1, id %2, %3", _sub_menu_id, _menu_id];
-						[_object, 0, ["ACE_MainActions", _menu_id], _action2] call ace_interact_menu_fnc_addActionToObject;
-						_prefix_num=_prefix_num+1;
-					};
-				} forEach _submenu;
+				[_object, _submenu, _default_loadout, _new_path] call fcn_loadout_menu;
 			};
 		};
+
 	} forEach _menu_tree;
 
 	true;
-};
 
+};
 
 fcn_Truppfueher={
 	params ["_default_loadout"];
@@ -606,7 +567,7 @@ fcn_Truppfueher={
 	_bp append [[ 1, "ACE_HuntIR_monitor"]];
 
 	_loadout set ["backpack_content ", _bp];
-	systemChat format ["fcn %1", _loadout];
+	//systemChat format ["fcn %1", _loadout];
 	/* weil wir es können, erstzen wir die Weste JPC Leader */
 	_loadout set [ "vest", ["BWA3_Vest_JPC_Leader_Fleck", "BWA3_Vest_JPC_Leader_Multi", "BWA3_Vest_JPC_Leader_Tropen", "TBW_Weste_Schnee"]];
 
@@ -626,7 +587,9 @@ fcn_UAVOP={};
 fcn_dummy={ hint "x"; };
 private _unit_classes=createHashMapFromArray [
 	[ "Leichte Infantrie", createHashMapFromArray [
-			["Truppführer", fcn_Truppfueher],
+			["Truppführer", createHashMapFromArray [
+				[ "Langstreckenfunk", fcn_Truppfueher]
+			]],
 			["Gruppenführer", fcn_Gruppenfueher],
 			["Sanitäter", fcn_dummy],
 			["Aufklärer", fcn_dummy],
@@ -679,7 +642,7 @@ private _unit_classes=createHashMapFromArray [
 
 [ _object, _unit_classes, _default_loadout ] call fcn_loadout_menu;
 
-systemChat format ["object: %1", _object];
+//systemChat format ["object: %1", _object];
 
 
 
