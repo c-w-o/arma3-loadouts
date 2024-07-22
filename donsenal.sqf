@@ -180,7 +180,7 @@ private _default_loadout=createHashMapFromArray [
 	[ "helmet", 			["BWA3_OpsCore_FastMT_SOF_Fleck", 	"BWA3_OpsCore_FastMT_SOF_Multi", 	"BWA3_OpsCore_FastMT_SOF_Tropen", 	"TBW_Helm2_Schnee"]],
 	[ "uniform", 			["BWA3_Uniform_Crye_G3_Fleck", 		"BWA3_Uniform_Crye_G3_Multi", 		"BWA3_Uniform_Crye_G3_Tropen", 		"PzBrig17_Uniform_Snow" ]],
 	[ "vest", 				["BWA3_Vest_Fleck", 				"BWA3_Vest_Multi", 					"BWA3_Vest_Tropen", 				"TBW_Weste_Schnee"]],
-	[ "backbag", 			["BWA3_AssaultPack_Fleck",			"BWA3_AssaultPack_Multi",			"BWA3_AssaultPack_Tropen",			"TBW_AssaultPack_Schnee"]],
+	[ "backpack", 			["BWA3_AssaultPack_Fleck",			"BWA3_AssaultPack_Multi",			"BWA3_AssaultPack_Tropen",			"TBW_AssaultPack_Schnee"]],
 
 	
 	[ "handgun",			_handgun_P12 ],
@@ -296,6 +296,7 @@ fcn__set_primary = {
 	params ["_unit", "_primary", "_camo_id"];
 	private _what = _primary getOrDefault ["type", nil];
 	_what = [_what, _camo_id] call fnc__get_array_index_or_item;
+	
 	if( not isNil "_what" ) then {
 		_unit addWeapon _what;
 		_what = _primary getOrDefault ["attachments", nil];
@@ -324,7 +325,7 @@ fnc_set_loadout = {
 	//hint "Stabsuniform XXX";
 	//hint format ["Hello, %1!", _params];
 	_unit = _player;
-	_loadout=_params;
+	_loadout= + [(_params select 0)] call (_params select 1);
 	//systemChat format ["_loadout %1", _loadout];
 	/* Alle vorhandene Items entfernen */
 	removeAllWeapons _unit;
@@ -384,9 +385,9 @@ fnc_set_loadout = {
 	};
 
 	/* Rucksack anziehen */
-	private _backbag = _loadout getOrDefault ["backbag", nil];
-	if( not isNil "_backbag" ) then {
-		private _what = [_backbag, _camo_id] call fnc__get_array_index_or_item;
+	private _backpack= _loadout getOrDefault ["backpack", nil];
+	if( not isNil "_backpack" ) then {
+		private _what = [_backpack, _camo_id] call fnc__get_array_index_or_item;
 		if( not isNil "_what" ) then {
 			_unit addBackpack _what;
 		};
@@ -444,12 +445,15 @@ fnc_set_loadout = {
 	
 	/* Primäre Waffe ausrüsten, Attachments anbringen und Munition in die Weste */
 	private _primary= _loadout getOrDefault ["primary", nil];
+	systemChat format ["primary: %1", _primary];
 	if( not isNil "_primary" ) then {
 		private _what = _primary getOrDefault ["type", nil];
 		if( not isNil "_what" ) then { /* apparently variant 1 */
+			systemChat format ["_what: %1", _what];
 			[_unit, _primary, _camo_id] call fcn__set_primary;
 		} else { /* Variant 2 or 3 */
 			private _what_mode = _primary getOrDefault [_mode, nil];
+			systemChat format ["_what_mode: %1", _what_mode];
 			[_unit, _what_mode, _camo_id] call fcn__set_primary;
 		};
 	};
@@ -457,7 +461,6 @@ fnc_set_loadout = {
 	private _uniform_content= _loadout getOrDefault ["uniform_content", nil];
 	if( not isNil "_uniform_content" ) then {
 		{ 
-
 			for "_i" from 1 to (_x select 0) do {
 				hint format ["uniform: %1 %2", _x select 0, _x select 1];
 				_unit addItemToUniform (_x select 1);
@@ -467,7 +470,6 @@ fnc_set_loadout = {
 
 	private _vest_content= _loadout getOrDefault ["vest_content", nil];
 	if( not isNil "_vest_content" ) then {
-
 		{ 
 			for "_i" from 1 to (_x select 0) do {
 				_unit addItemToVest (_x select 1);
@@ -476,12 +478,12 @@ fnc_set_loadout = {
 	};
 
 	private _backpack_content= _loadout getOrDefault ["backpack_content", nil];
-	//systemChat format ["_backpack_content2: %1", _backpack_content];
+	systemChat format ["_backpack_content2: %1", _backpack_content];
 	if( not isNil "_backpack_content" ) then {
 			//systemChat format ["_backpack_content: %1", _backpack_content];
 		{ 
 			for "_i" from 1 to (_x select 0) do {
-				_unit addItemToBackpack (_x select 1);
+				_unit addItemTobackpack(_x select 1);
 			};
 		} forEach _backpack_content;
 	};
@@ -530,7 +532,9 @@ fcn_loadout_menu={
 		private _action=nil;
 
 		if( (typeName _submenu) isEqualTo "CODE" ) then {
-			_action=[ _menu_id, _menu_name, "", fnc_set_loadout, {true}, {}, [_default_loadout] call _submenu, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+			//private _this_loadout= +([_default_loadout] call _submenu);
+			//systemChat format ["lm2: %1 - %2", _path, _this_loadout];
+			_action=[ _menu_id, _menu_name, "", (fnc_set_loadout), {true}, {}, [_default_loadout, _submenu], [0,0,0], 100] call ace_interact_menu_fnc_createAction;
 		};
 		if( (typeName _submenu) isEqualTo "ARRAY" ) then {
 			_action=[ _menu_id, _menu_name, "", (_submenu select 0), {true}, {}, (_submenu select 1), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
@@ -539,7 +543,7 @@ fcn_loadout_menu={
 			_action=[ _menu_id, _menu_name, "", {}, {true}, {}, objNull, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
 		};
 
-		systemChat format ["lm2: %1 - %2", _path, _menu_name];
+		
 		if( not isNil "_action" ) then {
 			[_object, 0, _path, _action] call ace_interact_menu_fnc_addActionToObject;
 			_prefix_num=_prefix_num+1;
@@ -556,9 +560,12 @@ fcn_loadout_menu={
 };
 
 fcn_Truppfueher={
-	params ["_default_loadout"];
-	private _loadout = +_default_loadout;
+	params ["_in_loadout"];
+	systemChat "fcn_Truppfueher";
+	private _loadout = + _in_loadout;
 	_loadout set ["primary", _primary_G38C ]; 																	/* Mit der Kompaktversion ersetzen */
+	private _g= _loadout get "primary";
+	systemChat format ["g %1", _primary_G38C];
 	_loadout set ["tools", [ "ItemMap", "ItemCompass", "ItemWatch", "TFAR_anprc152", "ItemAndroid"]];			/* leicht andere Tools */	
 	_loadout set ["binocular", "ACE_Vector"];																	/* VectorIV Fernglas */
 
@@ -566,21 +573,65 @@ fcn_Truppfueher={
 	private _bp=_loadout get "backpack_content";
 	_bp append [[ 1, "ACE_HuntIR_monitor"]];
 
-	_loadout set ["backpack_content ", _bp];
+	_loadout set ["backpack_content", _bp];
 	//systemChat format ["fcn %1", _loadout];
 	/* weil wir es können, erstzen wir die Weste JPC Leader */
 	_loadout set [ "vest", ["BWA3_Vest_JPC_Leader_Fleck", "BWA3_Vest_JPC_Leader_Multi", "BWA3_Vest_JPC_Leader_Tropen", "TBW_Weste_Schnee"]];
 
 	_loadout;	/* returnen des loadouts */
 };
-fcn_Gruppenfueher={
-	params ["_default_loadout"];
+fcn_TruppfueherFunk={
+	params ["_in_loadout"];
+	systemChat "fcn_TruppfueherFunk";
 	/* ist erstmal das gleiche wie der Truppführer */
-	private _loadout = [_default_loadout] call fcn_Truppfueher;
+	private _loadout = [_in_loadout] call fcn_Truppfueher;
+	_loadout set ["backpack", ["TFAR_rt1523g_bwmod", "TFAR_rt1523g_bwmod", "TFAR_rt1523g", "TFAR_rt1523g"]];
 
 	_loadout;	/* returnen des loadouts */
 };
-fcn_Sanitaeter={};
+fcn_Gruppenfueher={
+	params ["_in_loadout"];
+	systemChat "fcn_Gruppenfueher";
+	/* ist erstmal das gleiche wie der Truppführer */
+	private _loadout = [_in_loadout] call fcn_Truppfueher;
+
+	_loadout;	/* returnen des loadouts */
+};
+fcn_GruppenfueherFunk={
+	params ["_in_loadout"];
+	systemChat "fcn_GruppenfueherFunk";
+	/* ist erstmal das gleiche wie der TruppführerFunk */
+	private _loadout = [_in_loadout] call fcn_TruppfueherFunk;
+
+	_loadout;	/* returnen des loadouts */
+};
+
+fcn_Sanitaeter={
+	params ["_in_loadout"];
+	systemChat "fcn_Sanitaeter";
+	private _loadout = _in_loadout;
+	_loadout set ["primary", _primary_G38C ];	/* Mit der Kompaktversion ersetzen */
+	_loadout set ["backpack", ["BWA3_AssaultPack_Fleck_Medic", "BWA3_AssaultPack_Multi_Medic", "BWA3_AssaultPack_Tropen_Medic", "TBW_AssaultPack_Schnee"]];																/* VectorIV Fernglas */
+	_loadout set [ "vest", ["BWA3_Vest_Medic_Fleck", "BWA3_Vest_Medic_Multi", "BWA3_Vest_Medic_Tropen", "TBW_Weste_Schnee"]];
+
+	/* so richtig viel medic zeug */
+	private _bp=[	[ 42, "ACE_fieldDressing" ],
+					[ 12, "ACE_morphine" ],
+					[ 12, "ACE_epinephrine" ],
+					[ 12, "ACE_adenosine" ],
+					[  8, "ACE_splint" ],
+					[  2, "ACE_tourniquet" ],
+					[ 12, "ACE_salineIV_250" ],
+					[  1, "ACE_personalAidKit" ]
+	];
+
+	_loadout set ["backpack_content", _bp];
+	systemChat format ["fcn %1", _loadout];
+	/* weil wir es können, erstzen wir die Weste JPC Leader */
+
+	_loadout;	/* returnen des loadouts */
+};
+
 fcn_Aufklaerer={};
 fcn_Funker={};
 fcn_UAVOP={};
@@ -588,15 +639,19 @@ fcn_dummy={ hint "x"; };
 private _unit_classes=createHashMapFromArray [
 	[ "Leichte Infantrie", createHashMapFromArray [
 			["Truppführer", createHashMapFromArray [
-				[ "Langstreckenfunk", fcn_Truppfueher]
+				[ "Rucksack", fcn_Truppfueher],
+				[ "Langstreckenfunk", fcn_TruppfueherFunk]
 			]],
-			["Gruppenführer", fcn_Gruppenfueher],
-			["Sanitäter", fcn_dummy],
-			["Aufklärer", fcn_dummy],
-			["Funker", fcn_dummy],
-			["UAV Operator", fcn_dummy]
+			["Gruppenführer", createHashMapFromArray [
+				[ "Rucksack", fcn_Gruppenfueher],
+				[ "Langstreckenfunk", fcn_GruppenfueherFunk]
+			]],
+			["Sanitäter", fcn_Sanitaeter],
+			["Aufklärer", fcn_Sanitaeter],
+			["Funker", fcn_Sanitaeter],
+			["UAV Operator", fcn_Sanitaeter]
 		]
-	],
+	]/*,
 	[ "Infantrie", createHashMapFromArray [
 			["Pionier", fcn_dummy],
 			["Schütze", fcn_dummy],
@@ -633,7 +688,7 @@ private _unit_classes=createHashMapFromArray [
 			["mit Nachtsicht", [camouflage_change, "nightview"]],
 			["ohne Nachtsicht", [camouflage_change, ""]]
 		]
-	]
+	]*/
 ];
 
 
