@@ -325,7 +325,8 @@ fnc_set_loadout = {
 	//hint "Stabsuniform XXX";
 	//hint format ["Hello, %1!", _params];
 	_unit = _player;
-	_loadout= + [(_params select 0)] call (_params select 1);
+	//_loadout= + [(_params select 0)] call (_params select 1);
+	_loadout=_params;
 	//systemChat format ["_loadout %1", _loadout];
 	/* Alle vorhandene Items entfernen */
 	removeAllWeapons _unit;
@@ -483,7 +484,7 @@ fnc_set_loadout = {
 			//systemChat format ["_backpack_content: %1", _backpack_content];
 		{ 
 			for "_i" from 1 to (_x select 0) do {
-				_unit addItemTobackpack(_x select 1);
+				_unit addItemTobackpack (_x select 1);
 			};
 		} forEach _backpack_content;
 	};
@@ -534,7 +535,9 @@ fcn_loadout_menu={
 		if( (typeName _submenu) isEqualTo "CODE" ) then {
 			//private _this_loadout= +([_default_loadout] call _submenu);
 			//systemChat format ["lm2: %1 - %2", _path, _this_loadout];
-			_action=[ _menu_id, _menu_name, "", (fnc_set_loadout), {true}, {}, [_default_loadout, _submenu], [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+			private _lo= +_default_loadout;
+			private _le=(_lo call _submenu);
+			_action=[ _menu_id, _menu_name, "", (fnc_set_loadout), {true}, {}, _le, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
 		};
 		if( (typeName _submenu) isEqualTo "ARRAY" ) then {
 			_action=[ _menu_id, _menu_name, "", (_submenu select 0), {true}, {}, (_submenu select 1), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
@@ -610,6 +613,7 @@ fcn_Sanitaeter={
 	params ["_in_loadout"];
 	systemChat "fcn_Sanitaeter";
 	private _loadout = _in_loadout;
+
 	_loadout set ["primary", _primary_G38C ];	/* Mit der Kompaktversion ersetzen */
 	_loadout set ["backpack", ["BWA3_AssaultPack_Fleck_Medic", "BWA3_AssaultPack_Multi_Medic", "BWA3_AssaultPack_Tropen_Medic", "TBW_AssaultPack_Schnee"]];																/* VectorIV Fernglas */
 	_loadout set [ "vest", ["BWA3_Vest_Medic_Fleck", "BWA3_Vest_Medic_Multi", "BWA3_Vest_Medic_Tropen", "TBW_Weste_Schnee"]];
@@ -626,7 +630,7 @@ fcn_Sanitaeter={
 	];
 
 	_loadout set ["backpack_content", _bp];
-	systemChat format ["fcn %1", _loadout];
+	//systemChat format ["fcn %1", _loadout];
 	/* weil wir es können, erstzen wir die Weste JPC Leader */
 
 	_loadout;	/* returnen des loadouts */
