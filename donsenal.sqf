@@ -399,7 +399,6 @@ private _default_loadout=createHashMapFromArray [
 
 fcn_Truppfueher={
   params ["_in_loadout"];
-  //systemChat "Truppführer";
   private _loadout = _in_loadout;
   _loadout set ["primary", _primary_G38C ];                                   /* Mit der Kompaktversion ersetzen */
   _loadout set ["tools", [ "ItemMap", "ItemCompass", "ItemWatch", "TFAR_anprc152", "ItemAndroid"]];      /* leicht andere Tools */  
@@ -418,7 +417,6 @@ fcn_Truppfueher={
 
 fcn_TruppfueherFunk={
   params ["_in_loadout"];
-  //systemChat "Truppenführer mit Funk";
   /* ist erstmal das gleiche wie der Truppführer */
   private _loadout = [_in_loadout] call fcn_Truppfueher;
   _loadout set ["backpack", ["TFAR_rt1523g_bwmod", "TFAR_rt1523g_bwmod", "TFAR_rt1523g", "TFAR_rt1523g"]];
@@ -428,7 +426,6 @@ fcn_TruppfueherFunk={
 
 fcn_Gruppenfueher={
   params ["_in_loadout"];
-  //systemChat "Gruppenführer";
   /* ist erstmal das gleiche wie der Truppführer */
   private _loadout = [_in_loadout] call fcn_Truppfueher;
 
@@ -437,7 +434,6 @@ fcn_Gruppenfueher={
 
 fcn_GruppenfueherFunk={
   params ["_in_loadout"];
-  //systemChat "Gruppenführer mit Funk";
   /* ist erstmal das gleiche wie der TruppführerFunk */
   private _loadout = [_in_loadout] call fcn_TruppfueherFunk;
 
@@ -446,7 +442,6 @@ fcn_GruppenfueherFunk={
 
 fcn_Sanitaeter={
   params ["_in_loadout"];
-  //systemChat "Sanitäter";
   private _loadout = _in_loadout;
   _loadout set ["goggles", ["BWA3_G_Combat_clear", "BWA3_G_Combat_clear", "BWA3_G_Combat_black", "BWA3_G_Combat_black"]];
   _loadout set ["primary", _primary_G38C ];  /* Mit der Kompaktversion ersetzen */
