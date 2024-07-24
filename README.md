@@ -9,6 +9,7 @@ Für die Spieler:
 Für den Verwalter:
 - Alle Loadouts basieren auf einer einheitlichen Basis - was alle betrifft kann mit einer Zeile geändert werden.
 - Waffensets (mit/ohne Tarnungen und mit/ohne verdeckter Option) können angelegt werden.
+- Über das Loadout können die ACE Medic, ACE Pioneer (EOD) und ACE Engineer Fähigkeiten mit gesetzt werden. Aktuell hat nur der Sanitäter die Medic-Eigenschaft und alle Pioniere sowohl die Pionier als auch Engineer Eigenschaft.
 
 ## Konzept
 
@@ -234,8 +235,12 @@ private _default_loadout=createHashMapFromArray [
     [ "uniform",            "" ],   // Uniform, ein String oder ein Array mit den Tarnungen
     [ "vest",               "" ],   // Weste, ein String oder ein Array mit den Tarnungen
     [ "backpack",           "" ],   // Rucksack, ein String oder ein Array mit den Tarnungen
-    [ "nightvision",        nil ],   // Nachtsicht, nur ein String!
-
+    [ "nightvision",        nil ],  // Nachtsicht, nur ein String!
+  
+    [ "trait_medic",        false], // Entfernt standardmäßig die Medic Eigenschaft
+    [ "trait_pioneer",      false], // Entfernt standardmäßig die Sprengmeister Eigenschaft
+    [ "trait_engineer",     false], // Entfernt standardmäßig die Engineer Eigenschaft
+  
     [ "handgun",            [] ],   // Pistole, siehe Waffenset. Kann auch eine Variable sein.
     [ "primary",            [] ],   // Primärwaffe (Gewehr), Waffenset, kann eine Variable sein.
     [ "secondary",          [] ],   // Sekundärwaffe (zb. Panzerfaust), siehe Waffenset.
