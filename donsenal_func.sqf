@@ -134,7 +134,7 @@ camouflage_change = {
 	
 	if( not isNil "_camo2" ) then {
 		if( not (_camo2 isEqualTo _camo) ) then {
-			_player setVariable [ "TAG_selected_camo", _camo ];
+			_player setVariable [ "TAG_selected_camo", _camo, true];
 			private _loadout = _player getVariable ["TAG_selected_loadout", nil];
 			if( not isNil "_loadout" ) then {
 				[_target, _unit, _loadout ] call fnc_set_loadout;
@@ -153,7 +153,7 @@ special_change = {
 	
 	if( not isNil "_mode2" ) then {
 		if( not (_mode2 isEqualTo _mode) ) then {
-			_player setVariable [ "TAG_selected_mode", _mode ];
+			_player setVariable [ "TAG_selected_mode", _mode, true ];
 			private _loadout = _player getVariable ["TAG_selected_loadout", nil];
 			if( not isNil "_loadout" ) then {
 				[_target, _unit, _loadout ] call fnc_set_loadout;
@@ -189,13 +189,13 @@ fnc_set_loadout = {
 	   Munition aufzunehmen (oder ähnliches). Wenn keine Tarnung vorhanden
 	   ist, wird Flecktarn ("tree") als Default gesetzt.
 	*/
-	_player setVariable [ "TAG_selected_loadout", _loadout ];
+	_player setVariable [ "TAG_selected_loadout", _loadout, true ];
 	private _camo = _player getVariable ["TAG_selected_camo", nil];
 	private _camo_id=0;
 	if( isNil "_camo" ) then {
 		_camo="tree";
 		//hint format ["set camo to %1", _camo];
-		_player setVariable [ "TAG_selected_camo", _camo ];
+		_player setVariable [ "TAG_selected_camo", _camo, true ];
 	};
 
 	private _possible_camos=createHashMapFromArray [
@@ -206,9 +206,36 @@ fnc_set_loadout = {
 	private _mode = _player getVariable ["TAG_selected_mode", nil];
 	if( isNil "_mode" ) then {
 		_mode="regular";
-		_player setVariable [ "TAG_selected_mode", _mode ];
+		_player setVariable [ "TAG_selected_mode", _mode, true ];
 	} else {
 
+	};
+
+	private _is_medic = _loadout getOrDefault ["trait_medic", nil];
+	if( not isNil "_is_medic" ) then {
+		if(_is_medic) then {
+			_unit setVariable ["ACE_medical_medicClass", 1, true];
+		} else {
+			_unit setVariable ["ACE_medical_medicClass", 0, true];
+		}
+	};
+
+	private _is_pioneer = _loadout getOrDefault ["trait_pioneer", nil];
+	if( not isNil "_is_pioneer" ) then {
+		if(_is_pioneer) then {
+			_unit setVariable ["ACE_isEOD", true, true];
+		} else {
+			_unit setVariable ["ACE_isEOD", false, true];
+		}
+	};
+
+	private _is_engineer = _loadout getOrDefault ["trait_engineer", nil];
+	if( not isNil "_is_engineer" ) then {
+		if(_is_pioneer) then {
+			_unit setVariable ["ACE_isEngineer", 2, true];
+		} else {
+			_unit setVariable ["ACE_isEngineer", 0, true];
+		}
 	};
 
 	/* Uniform anziehen */
@@ -240,7 +267,7 @@ fnc_set_loadout = {
 	};
 
 	if( not isNil "_mode") then {
-		systemChat format ["mode is %1", _mode];
+		//systemChat format ["mode is %1", _mode];
 		if(_mode isEqualTo "special") then {
 			private _nightvision= _loadout getOrDefault ["nightvision", nil];
 			if( not isNil "_nightvision" ) then {
