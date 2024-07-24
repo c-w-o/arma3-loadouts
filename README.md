@@ -156,7 +156,10 @@ Mit Laserpointer Attachment in 4 Tarnungen (Achtung, diese Items gibt es nicht w
 ```
 private _handgun_p12=createHashMapFromArray [
     ["type", "BWA3_P12" ],
-    ["attachments", [ ["BWA3_acc_LLMPI_irlaser", "BWA3_acc_LLMPI_irlaser_multi", "BWA3_acc_LLMPI_irlaser_tan", "BWA3_acc_LLMPI_irlaser_snow"] ] ],
+    ["attachments", [ [ "BWA3_acc_LLMPI_irlaser",
+                        "BWA3_acc_LLMPI_irlaser_multi",
+                        "BWA3_acc_LLMPI_irlaser_tan",
+                        "BWA3_acc_LLMPI_irlaser_snow"] ] ],
     ["ammo", [ [3, "BWA3_12Rnd_45ACP_P12"] ] ]
 ];
 
@@ -170,11 +173,19 @@ Mit verdeckter Option, Laserpointer Attachment in 4 Tarnungen (Achtung, diese It
 private _handgun_p12=createHashMapFromArray [
     ["regular",     createHashMapFromArray [
         ["type", "BWA3_P12" ],
-        ["attachments", ["BWA3_acc_LLMPI_irlaser", "BWA3_acc_LLMPI_irlaser_multi", "BWA3_acc_LLMPI_irlaser_tan", "BWA3_acc_LLMPI_irlaser_snow"] ],
+        ["attachments", [ "BWA3_acc_LLMPI_irlaser",
+                          "BWA3_acc_LLMPI_irlaser_multi",
+                          "BWA3_acc_LLMPI_irlaser_tan",
+                          "BWA3_acc_LLMPI_irlaser_snow"] ],
         ["ammo", [ [3, "BWA3_12Rnd_45ACP_P12"] ] ]
     ],[
         ["type", "BWA3_P12" ],
-        ["attachments", [ "BWA3_muzzle_snds_Impuls_IIA[, "BWA3_acc_LLMPI_irlaser", "BWA3_acc_LLMPI_irlaser_multi", "BWA3_acc_LLMPI_irlaser_tan", "BWA3_acc_LLMPI_irlaser_snow"] ] ],
+        ["attachments", [ "BWA3_muzzle_snds_Impuls_IIA",
+                          [ "BWA3_acc_LLMPI_irlaser",
+                            "BWA3_acc_LLMPI_irlaser_multi",
+                            "BWA3_acc_LLMPI_irlaser_tan",
+                            "BWA3_acc_LLMPI_irlaser_snow"] ]
+        ],
         ["ammo", [ [3, "BWA3_12Rnd_45ACP_P12"] ] ]
     ]
 ];
