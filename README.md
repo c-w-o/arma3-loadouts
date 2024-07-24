@@ -105,7 +105,7 @@ private _handgun_P12=createHashMapFromArray [
 ];
 
 ```
-Im einzelnen:
+Im Einzelnen:
 1. der Variable "_handgun_P12" wird eine Hashmap aus dem Array '[ ["special", \<irgendwas\>], ["regular", \<irgendwas\>]]' erzeugt.
 2. jedes \<irgendwas\> besteht wieder aus einer Hashmap '[ ["type", \<Waffenname\>], ["attachments", \<array_von_attachments\>], ["ammo", \<array_von_ammo\>]]'
 3. das \<array_von_attachments\> ist dann eine Auflistung aller angebauten Attachments
