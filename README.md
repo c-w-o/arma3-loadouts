@@ -15,7 +15,7 @@ Für den Verwalter:
 Das Loadout File besteht aus vier Abschnitten.
 1. Waffensets - weil diese mit ihren Tarnungen, Attachments und Munition recht komplex sind
 2. Standard Loadout - Legt Uniform, Brille, Weste, Rucksack, Waffen, Tools und Ausrüstungsgegenstände fest
-3. Eine Liste von Funktionen um jede Klasse extra anpassen zu können, z.B. in dem man einem Sani eine Uniform mit einem rotem Kreuz gibt.
+3. Eine Liste von Funktionen um jede Klasse extra anpassen zu können, z.B. in dem man einem Sani eine Uniform mit einem rotem Kreuz gibt. So eine Funktion ist Pflicht, selbst wenn man nichts anpasst.
 4. Das Festlegen des ACE Menübaums.
 
 Das Grundkonzept ist, dass alles was an einem Loadout gleich ist so wenig wie möglich angelegt
@@ -373,6 +373,22 @@ fcn_Schuetze_Leicht={
   _loadout;  /* Rückgabe des Loadouts */
 };
 ```
+Die absolute minimal-Funktion, die für eine jede Klasse existieren muss - selbst wenn man
+nichts verändern möchte, sieht so aus:
+```
+fcn_minimal_funktion={
+  params ["_in_loadout"];
+  private _loadout = _in_loadout;
+  _loadout;  /* Rückgabe des Loadouts */
+};
+```
+Diese Minimalfunktion muss einen Parameter namens "_in_loadout" erwarten, da dieser vom Script
+übergeben werden will. Die "Umbenennung" der Variable von "_in_loadout" zu "_loadout" kann man
+theoretisch weg lassen und ohne diese Zeile direkt "_in_loadout;" zurück geben. Aber wenn man 
+Anpassunge vornimmt, finde ich es übersichtlicher, wenn diese beiden Variablen unterschiedlich
+benamnt sind. Bei größeren Anpassungen möchte man vielleicht die Variable kopieren (was in ASL mit
+einem "private _loadout = __+__ _in_loadout;" erfolgt.) und man so für alle Funktionen eine
+einheitliche Optik erhält.
 
 
 ### 4. ACE Menübaum
