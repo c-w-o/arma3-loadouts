@@ -368,6 +368,12 @@ private _default_loadout=createHashMapFromArray [
   [ "binocular",          nil],
   [ "tools",              [ "ItemMap", "ItemCompass", "TFAR_microdagr", "TFAR_rf7800str", "ItemMicroDAGR" ] ],
 
+  
+  [ "trait_medic",        false],
+  [ "trait_pioneer",      false],
+  [ "trait_engineer",     false],
+  
+
   [ "uniform_content",    [ [ 1, "ACE_EarPlugs" ],
                             [ 1, "ACE_Banana" ], 
                             [ 1, "acex_intelitems_notepad"],
@@ -459,6 +465,7 @@ fcn_Sanitaeter={
           [  1, "ACE_personalAidKit" ]
   ];
 
+  _loadout set ["trait_medic", true];
   _loadout set ["backpack_content", _bp];
 
   _loadout;  /* Rückgabe des Loadouts */
@@ -539,7 +546,8 @@ fcn_Pionier_Spreng={
         ];
 
   _loadout set ["backpack_content", _bp];
-
+  _loadout set ["trait_pioneer", true];
+  _loadout set ["trait_engineer", true];
   _loadout;  /* Rückgabe des Loadouts */
 };
 
@@ -557,7 +565,27 @@ fcn_Pionier_Mine={
         ];
 
   _loadout set ["backpack_content", _bp];
+  _loadout set ["trait_pioneer", true];
+  _loadout set ["trait_engineer", true];
+  _loadout;  /* Rückgabe des Loadouts */
+};
 
+fcn_Pionier_Tech={
+  params ["_in_loadout"];
+  //systemChat "Pionier";
+  private _loadout = _in_loadout;
+  _loadout set ["vest", ["BWA3_Vest_Grenadier_Fleck", "BWA3_Vest_Grenadier_Multi", "BWA3_Vest_Grenadier_Tropen", "TBW_Weste_Schnee"]];
+  _loadout set ["goggles", ["G_Balaclava_Flecktarn", "G_Balaclava_Flecktarn", "G_Balaclava_Tropentarn", "G_Balaclava_TI_G_blk_F"]];
+  private _bp=_loadout get "backpack_content";
+  _bp append [[ 1, "ACE_wirecutter"],
+        [ 1, "ACE_DefusalKit"],
+        [ 1, "ACE_Fortify"],
+        [ 1, "ToolKit"]
+        ];
+
+  _loadout set ["backpack_content", _bp];
+  _loadout set ["trait_pioneer", true];
+  _loadout set ["trait_engineer", true];
   _loadout;  /* Rückgabe des Loadouts */
 };
 
@@ -912,7 +940,8 @@ private _unit_classes=createHashMapFromArray [
   [ "Infantrie", createHashMapFromArray [
       ["Pionier", createHashMapFromArray [
         [ "Sprengstoff", fcn_Pionier_Spreng],
-        [ "Anti Personen Minen", fcn_Pionier_Mine]
+        [ "Anti Personen Minen", fcn_Pionier_Mine],
+        [ "Techniker", fcn_Pionier_Tech]
       ]],
       ["Schütze", fcn_Schuetze_Leicht],
       ["Gruppenscharfschütze", createHashMapFromArray [
