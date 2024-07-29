@@ -184,208 +184,215 @@ fnc_set_loadout = {
 	removeHeadgear _unit;
 	removeGoggles _unit;
 
-	/* die Konfiguration des Loadout am Spieler mit abspeichern,
-	   um später ggf. die Tarnung ändern zu können oder die richtige
-	   Munition aufzunehmen (oder ähnliches). Wenn keine Tarnung vorhanden
-	   ist, wird Flecktarn ("tree") als Default gesetzt.
-	*/
-	_player setVariable [ "TAG_selected_loadout", _loadout, true ];
-	private _camo = _player getVariable ["TAG_selected_camo", nil];
-	private _camo_id=0;
-	if( isNil "_camo" ) then {
-		_camo="tree";
-		//hint format ["set camo to %1", _camo];
-		_player setVariable [ "TAG_selected_camo", _camo, true ];
-	};
+	if( (typeName _params) isEqualTo "STRING" ) then {
+		private _handle = [_target, _unit, 1] execVM _params;
+		//waitUntil { scriptDone _handle };
 
-	private _possible_camos=createHashMapFromArray [
-		["tree", 0], ["gras", 1], ["sand", 2], ["snow", 3]
-	];
-	private _camo_id= _possible_camos getOrDefault [_camo, 0];
-
-	private _mode = _player getVariable ["TAG_selected_mode", nil];
-	if( isNil "_mode" ) then {
-		_mode="regular";
-		_player setVariable [ "TAG_selected_mode", _mode, true ];
 	} else {
-
-	};
-
-	private _is_medic = _loadout getOrDefault ["trait_medic", nil];
-	if( not isNil "_is_medic" ) then {
-		if(_is_medic) then {
-			_unit setVariable ["ACE_medical_medicClass", 1, true];
-		} else {
-			_unit setVariable ["ACE_medical_medicClass", 0, true];
-		}
-	};
-
-	private _is_pioneer = _loadout getOrDefault ["trait_pioneer", nil];
-	if( not isNil "_is_pioneer" ) then {
-		if(_is_pioneer) then {
-			_unit setVariable ["ACE_isEOD", true, true];
-		} else {
-			_unit setVariable ["ACE_isEOD", false, true];
-		}
-	};
-
-	private _is_engineer = _loadout getOrDefault ["trait_engineer", nil];
-	if( not isNil "_is_engineer" ) then {
-		if(_is_pioneer) then {
-			_unit setVariable ["ACE_isEngineer", 2, true];
-		} else {
-			_unit setVariable ["ACE_isEngineer", 0, true];
-		}
-	};
-
-	/* Uniform anziehen */
-	private _uniform = _loadout getOrDefault ["uniform", nil];
-	if( not isNil "_uniform" ) then {
-		private _what = [_uniform, _camo_id] call fnc__get_array_index_or_item;
-		if( not isNil "_what" ) then {
-			_unit forceAddUniform _what;
-		};
-	};
-
-	/* Weste anziehen */
-	private _vest = _loadout getOrDefault ["vest", nil];
-	if( not isNil "_vest" ) then {
-		//hint format ["vest: %1", _vest];
-		private _what = [_vest, _camo_id] call fnc__get_array_index_or_item;
-		if( not isNil "_what") then {
-			_unit addVest _what;
-		};
-	};
-
-	/* Rucksack anziehen */
-	private _backpack= _loadout getOrDefault ["backpack", nil];
-	if( not isNil "_backpack" ) then {
-		private _what = [_backpack, _camo_id] call fnc__get_array_index_or_item;
-		if( not isNil "_what" ) then {
-			_unit addBackpack _what;
-		};
-	};
-
-	if( not isNil "_mode") then {
-		//systemChat format ["mode is %1", _mode];
-		if(_mode isEqualTo "special") then {
-			private _nightvision= _loadout getOrDefault ["nightvision", nil];
-			if( not isNil "_nightvision" ) then {
-				private _what = [_nightvision, _camo_id] call fnc__get_array_index_or_item;
-				if( not isNil "_what" ) then {
-					_unit linkItem _what;
-				};
-			};
-			
-		};
-	};
-
-	/* Brille anziehen */
-	private _goggles = _loadout getOrDefault ["goggles", nil];
-	//systemChat format ["goggles a: %1 (%2)", _goggles, _camo];
-	if( not isNil "_goggles" ) then {
-		private _what = [_goggles, _camo_id] call fnc__get_array_index_or_item;
-		//systemChat format ["goggles b: %1", _what];
-		if( not isNil "_what" ) then {
-			_unit addGoggles _what;
-		};
-	};
-
-	/* Helm anziehen */
-	private _helmet = _loadout getOrDefault ["helmet", nil];
-	if( not isNil "_helmet" ) then {
-		private _what = [_helmet, _camo_id] call fnc__get_array_index_or_item;
-		if( not isNil "_what" ) then {
-			_unit addHeadgear _what;
-		};
-	};
-
-	/* Helm anziehen */
-	private _binocular = _loadout getOrDefault ["binocular", nil];
-	if( not isNil "_binocular" ) then {
-		private _what = [_binocular, _camo_id] call fnc__get_array_index_or_item;
-		if( not isNil "_what" ) then {
-			_unit addWeapon _what;
-		};
-	};
-
-	/* Tools ausrüsten */
-	private _tools = _loadout getOrDefault ["tools", nil];
-	if( not isNil "_tools" ) then {
-		{ _unit linkItem _x } forEach _tools;
-	};
-
-	/* Handwaffe ausrüsten, Attachments anbringen und Munition in die Uniform */
-	private _handgun= _loadout getOrDefault ["handgun", nil];
-	private _handgun_ammo=nil;
-	if( not isNil "_handgun" ) then {
-		private _what = _handgun getOrDefault ["type", nil];
 		
-		if( not isNil "_what" ) then { /* apparently variant 1 */
-			_handgun_ammo=([_unit, _handgun, _camo_id] call fcn__set_handgun);
-		} else { /* Variant 2 or 3 */
-			private _what_mode = _handgun getOrDefault [_mode, nil];
-			_handgun_ammo=([_unit, _what_mode, _camo_id] call fcn__set_handgun);
+		/* die Konfiguration des Loadout am Spieler mit abspeichern,
+		um später ggf. die Tarnung ändern zu können oder die richtige
+		Munition aufzunehmen (oder ähnliches). Wenn keine Tarnung vorhanden
+		ist, wird Flecktarn ("tree") als Default gesetzt.
+		*/
+		_player setVariable [ "TAG_selected_loadout", _loadout, true ];
+		private _camo = _player getVariable ["TAG_selected_camo", nil];
+		private _camo_id=0;
+		if( isNil "_camo" ) then {
+			_camo="tree";
+			//hint format ["set camo to %1", _camo];
+			_player setVariable [ "TAG_selected_camo", _camo, true ];
 		};
-	};
-	
-	/* Primäre Waffe ausrüsten, Attachments anbringen und Munition in die Weste */
-	private _primary= _loadout getOrDefault ["primary", nil];
-	private _primary_ammo=nil;
-	if( not isNil "_primary" ) then {
-		private _what = _primary getOrDefault ["type", nil];
-		if( not isNil "_what" ) then { /* apparently variant 1 */
-			_primary_ammo=([_unit, _primary, _camo_id] call fcn__set_primary);
-		} else { /* Variant 2 or 3 */
-			private _what_mode = _primary getOrDefault [_mode, nil];
-			_primary_ammo=([_unit, _what_mode, _camo_id] call fcn__set_primary);
+
+		private _possible_camos=createHashMapFromArray [
+			["tree", 0], ["gras", 1], ["sand", 2], ["snow", 3]
+		];
+		private _camo_id= _possible_camos getOrDefault [_camo, 0];
+
+		private _mode = _player getVariable ["TAG_selected_mode", nil];
+		if( isNil "_mode" ) then {
+			_mode="regular";
+			_player setVariable [ "TAG_selected_mode", _mode, true ];
+		} else {
+
 		};
-	};
 
-	/* Sekundäre Waffe ausrüsten, Attachments anbringen und Munition in die Weste */
-	private _secondary= _loadout getOrDefault ["secondary", nil];
-	private _secondary_ammo=nil;
-	if( not isNil "_secondary" ) then {
-		private _what = _secondary getOrDefault ["type", nil];
-		if( not isNil "_what" ) then { /* apparently variant 1 */
-			_secondary_ammo=([_unit, _secondary, _camo_id] call fcn__set_secondary);
-		} else { /* Variant 2 or 3 */
-			private _what_mode = _secondary getOrDefault [_mode, nil];
-			_secondary_ammo=([_unit, _what_mode, _camo_id] call fcn__set_secondary);
+		private _is_medic = _loadout getOrDefault ["trait_medic", nil];
+		if( not isNil "_is_medic" ) then {
+			if(_is_medic) then {
+				_unit setVariable ["ACE_medical_medicClass", 1, true];
+			} else {
+				_unit setVariable ["ACE_medical_medicClass", 0, true];
+			}
 		};
-	};
 
-	private _uniform_content= _loadout getOrDefault ["uniform_content", nil];
-	if( not isNil "_uniform_content" ) then {
-		{ 
-			for "_i" from 1 to (_x select 0) do {
-				//hint format ["uniform: %1 %2", _x select 0, _x select 1];
-				_unit addItemToUniform (_x select 1);
-			};
-		} forEach _uniform_content;
-	};
+		private _is_pioneer = _loadout getOrDefault ["trait_pioneer", nil];
+		if( not isNil "_is_pioneer" ) then {
+			if(_is_pioneer) then {
+				_unit setVariable ["ACE_isEOD", true, true];
+			} else {
+				_unit setVariable ["ACE_isEOD", false, true];
+			}
+		};
 
-	private _vest_content= _loadout getOrDefault ["vest_content", nil];
-	if( not isNil "_vest_content" ) then {
-		{ 
-			for "_i" from 1 to (_x select 0) do {
-				_unit addItemToVest (_x select 1);
-			};
-		} forEach _vest_content;
-	};
+		private _is_engineer = _loadout getOrDefault ["trait_engineer", nil];
+		if( not isNil "_is_engineer" ) then {
+			if(_is_pioneer) then {
+				_unit setVariable ["ACE_isEngineer", 2, true];
+			} else {
+				_unit setVariable ["ACE_isEngineer", 0, true];
+			}
+		};
 
-	private _backpack_content= _loadout getOrDefault ["backpack_content", nil];
-	if( not isNil "_backpack_content" ) then {
-		{ 
-			for "_i" from 1 to (_x select 0) do {
-				if( (_x select 1) isEqualTo "__extra_primary_ammo") then {
-					_unit addItemTobackpack _primary_ammo;
-				} else {
-					_unit addItemTobackpack (_x select 1);
-				}
+		/* Uniform anziehen */
+		private _uniform = _loadout getOrDefault ["uniform", nil];
+		if( not isNil "_uniform" ) then {
+			private _what = [_uniform, _camo_id] call fnc__get_array_index_or_item;
+			if( not isNil "_what" ) then {
+				_unit forceAddUniform _what;
 			};
-		} forEach _backpack_content;
-	};
+		};
+
+		/* Weste anziehen */
+		private _vest = _loadout getOrDefault ["vest", nil];
+		if( not isNil "_vest" ) then {
+			//hint format ["vest: %1", _vest];
+			private _what = [_vest, _camo_id] call fnc__get_array_index_or_item;
+			if( not isNil "_what") then {
+				_unit addVest _what;
+			};
+		};
+
+		/* Rucksack anziehen */
+		private _backpack= _loadout getOrDefault ["backpack", nil];
+		if( not isNil "_backpack" ) then {
+			private _what = [_backpack, _camo_id] call fnc__get_array_index_or_item;
+			if( not isNil "_what" ) then {
+				_unit addBackpack _what;
+			};
+		};
+
+		if( not isNil "_mode") then {
+			//systemChat format ["mode is %1", _mode];
+			if(_mode isEqualTo "special") then {
+				private _nightvision= _loadout getOrDefault ["nightvision", nil];
+				if( not isNil "_nightvision" ) then {
+					private _what = [_nightvision, _camo_id] call fnc__get_array_index_or_item;
+					if( not isNil "_what" ) then {
+						_unit linkItem _what;
+					};
+				};
+				
+			};
+		};
+
+		/* Brille anziehen */
+		private _goggles = _loadout getOrDefault ["goggles", nil];
+		//systemChat format ["goggles a: %1 (%2)", _goggles, _camo];
+		if( not isNil "_goggles" ) then {
+			private _what = [_goggles, _camo_id] call fnc__get_array_index_or_item;
+			//systemChat format ["goggles b: %1", _what];
+			if( not isNil "_what" ) then {
+				_unit addGoggles _what;
+			};
+		};
+
+		/* Helm anziehen */
+		private _helmet = _loadout getOrDefault ["helmet", nil];
+		if( not isNil "_helmet" ) then {
+			private _what = [_helmet, _camo_id] call fnc__get_array_index_or_item;
+			if( not isNil "_what" ) then {
+				_unit addHeadgear _what;
+			};
+		};
+
+		/* Helm anziehen */
+		private _binocular = _loadout getOrDefault ["binocular", nil];
+		if( not isNil "_binocular" ) then {
+			private _what = [_binocular, _camo_id] call fnc__get_array_index_or_item;
+			if( not isNil "_what" ) then {
+				_unit addWeapon _what;
+			};
+		};
+
+		/* Tools ausrüsten */
+		private _tools = _loadout getOrDefault ["tools", nil];
+		if( not isNil "_tools" ) then {
+			{ _unit linkItem _x } forEach _tools;
+		};
+
+		/* Handwaffe ausrüsten, Attachments anbringen und Munition in die Uniform */
+		private _handgun= _loadout getOrDefault ["handgun", nil];
+		private _handgun_ammo=nil;
+		if( not isNil "_handgun" ) then {
+			private _what = _handgun getOrDefault ["type", nil];
+			
+			if( not isNil "_what" ) then { /* apparently variant 1 */
+				_handgun_ammo=([_unit, _handgun, _camo_id] call fcn__set_handgun);
+			} else { /* Variant 2 or 3 */
+				private _what_mode = _handgun getOrDefault [_mode, nil];
+				_handgun_ammo=([_unit, _what_mode, _camo_id] call fcn__set_handgun);
+			};
+		};
+		
+		/* Primäre Waffe ausrüsten, Attachments anbringen und Munition in die Weste */
+		private _primary= _loadout getOrDefault ["primary", nil];
+		private _primary_ammo=nil;
+		if( not isNil "_primary" ) then {
+			private _what = _primary getOrDefault ["type", nil];
+			if( not isNil "_what" ) then { /* apparently variant 1 */
+				_primary_ammo=([_unit, _primary, _camo_id] call fcn__set_primary);
+			} else { /* Variant 2 or 3 */
+				private _what_mode = _primary getOrDefault [_mode, nil];
+				_primary_ammo=([_unit, _what_mode, _camo_id] call fcn__set_primary);
+			};
+		};
+
+		/* Sekundäre Waffe ausrüsten, Attachments anbringen und Munition in die Weste */
+		private _secondary= _loadout getOrDefault ["secondary", nil];
+		private _secondary_ammo=nil;
+		if( not isNil "_secondary" ) then {
+			private _what = _secondary getOrDefault ["type", nil];
+			if( not isNil "_what" ) then { /* apparently variant 1 */
+				_secondary_ammo=([_unit, _secondary, _camo_id] call fcn__set_secondary);
+			} else { /* Variant 2 or 3 */
+				private _what_mode = _secondary getOrDefault [_mode, nil];
+				_secondary_ammo=([_unit, _what_mode, _camo_id] call fcn__set_secondary);
+			};
+		};
+
+		private _uniform_content= _loadout getOrDefault ["uniform_content", nil];
+		if( not isNil "_uniform_content" ) then {
+			{ 
+				for "_i" from 1 to (_x select 0) do {
+					//hint format ["uniform: %1 %2", _x select 0, _x select 1];
+					_unit addItemToUniform (_x select 1);
+				};
+			} forEach _uniform_content;
+		};
+
+		private _vest_content= _loadout getOrDefault ["vest_content", nil];
+		if( not isNil "_vest_content" ) then {
+			{ 
+				for "_i" from 1 to (_x select 0) do {
+					_unit addItemToVest (_x select 1);
+				};
+			} forEach _vest_content;
+		};
+
+		private _backpack_content= _loadout getOrDefault ["backpack_content", nil];
+		if( not isNil "_backpack_content" ) then {
+			{ 
+				for "_i" from 1 to (_x select 0) do {
+					if( (_x select 1) isEqualTo "__extra_primary_ammo") then {
+						_unit addItemTobackpack _primary_ammo;
+					} else {
+						_unit addItemTobackpack (_x select 1);
+					}
+				};
+			} forEach _backpack_content;
+		};
+	} 
 };
 
 
@@ -429,6 +436,10 @@ fcn_loadout_menu={
 		if( (typeName _submenu) isEqualTo "HASHMAP" ) then {
 			/* a hashmap is our actual menu - or better submenu */
 			_action=[ _menu_id, _menu_name, "", {}, {true}, {}, objNull, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+		};
+		if( (typeName _submenu) isEqualTo "STRING" ) then {
+			/* a hashmap is our actual menu - or better submenu */
+			_action=[ _menu_id, _menu_name, "", (fnc_set_loadout), {true}, {}, (_default_loadout + "\" + _submenu ), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
 		};
 
 		
