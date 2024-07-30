@@ -434,31 +434,32 @@ fcn_loadout_menu={
 			/* special case, we assume an array to contain a callable function and some sort of parameter. this way we can specify something to toggle or so */
 			private _isenabled=true;
 			if( (count _submenu) == 2) then {
-				private _lhs=_submenu select 1;
-				private _rhs=_submenu select 0;
-				if( (typename _rhs) isEqualTo "BOOL" ) then {
-					_isenabled=_rhs;
+				private _rhs=_submenu select 1;
+				private _lhs=_submenu select 0;
+				if( (typename _lhs) isEqualTo "BOOL" ) then {
+					_isenabled=_lhs;
 				};
-				if( (typename _rhs) isEqualTo "SCALAR" ) then {
-					_isenabled=_rhs != 0;
+				if( (typename _lhs) isEqualTo "SCALAR" ) then {
+					_isenabled=_lhs != 0;
 				};
-				//systemChat format["array: %1, %2 - %3", typename _rhs, typename _lhs, _isenabled];
+				//systemChat format["array: %1, %2 - %3", typename _lhs, typename _rhs, _isenabled];
 				if(_isenabled) then {
 					if( (typename _lhs) isEqualTo "CODE" ) then {
 						_action=[ _menu_id, _menu_name, "", (_lhs), {true}, {}, (_rhs), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
-					};
-					if( (typename _lhs) isEqualTo "HASHMAP" ) then {
-						/* a hashmap is our actual menu - or better submenu */
-						_action=[ _menu_id, _menu_name, "", {}, {true}, {}, objNull, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
-						_cascade_menu=_lhs;
-					};
-					if( (typename _lhs) isEqualTo "STRING" ) then {
-						/* a hashmap is our actual menu - or better submenu */
-						_action=[ _menu_id, _menu_name, "", (fnc_set_loadout), {true}, {}, (_default_loadout + "\" + _lhs ), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
-					};
-					if( (typename _lhs) isEqualTo "ARRAY" ) then {
-						/* a hashmap is our actual menu - or better submenu */
-						_action=[ _menu_id, _menu_name, "", (_lhs), {true}, {}, (_rhs), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+					} else {
+						if( (typename _rhs) isEqualTo "HASHMAP" ) then {
+							/* a hashmap is our actual menu - or better submenu */
+							_action=[ _menu_id, _menu_name, "", {}, {true}, {}, objNull, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+							_cascade_menu=_rhs;
+						};
+						if( (typename _rhs) isEqualTo "STRING" ) then {
+							/* a hashmap is our actual menu - or better submenu */
+							_action=[ _menu_id, _menu_name, "", (fnc_set_loadout), {true}, {}, (_default_loadout + "\" + _rhs ), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+						};
+						if( (typename _rhs) isEqualTo "ARRAY" ) then {
+							/* a hashmap is our actual menu - or better submenu */
+							_action=[ _menu_id, _menu_name, "", (_rhs), {true}, {}, (_lhs), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+						};
 					};
 				};
 			};
