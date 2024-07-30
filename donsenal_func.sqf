@@ -415,6 +415,7 @@ fcn_loadout_menu={
 		_menu_id= format ["%1_%2", _prefix_num, _menu_id];
 		private _submenu=_y;
 		private _action=nil;
+		private _cascade_menu=_submenu;
 
 		if( (typeName _submenu) isEqualTo "CODE" ) then {
 			/* if we have a loadout function, make a copy of our default loadout and call the function to
@@ -431,7 +432,36 @@ fcn_loadout_menu={
 		if( (typeName _submenu) isEqualTo "ARRAY" ) then {
 			//systemChat format ["menu: %1 a: %2, b: %3", _menu_name, submenu select 0, (_submenu select 1)];
 			/* special case, we assume an array to contain a callable function and some sort of parameter. this way we can specify something to toggle or so */
-			_action=[ _menu_id, _menu_name, "", (_submenu select 0), {true}, {}, (_submenu select 1), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+			private _isenabled=true;
+			if( (count _submenu) == 2) then {
+				private _lhs=_submenu select 1;
+				private _rhs=_submenu select 0;
+				if( (typename _rhs) isEqualTo "BOOL" ) then {
+					_isenabled=_rhs;
+				};
+				if( (typename _rhs) isEqualTo "SCALAR" ) then {
+					_isenabled=_rhs != 0;
+				};
+				//systemChat format["array: %1, %2 - %3", typename _rhs, typename _lhs, _isenabled];
+				if(_isenabled) then {
+					if( (typename _lhs) isEqualTo "CODE" ) then {
+						_action=[ _menu_id, _menu_name, "", (_lhs), {true}, {}, (_rhs), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+					};
+					if( (typename _lhs) isEqualTo "HASHMAP" ) then {
+						/* a hashmap is our actual menu - or better submenu */
+						_action=[ _menu_id, _menu_name, "", {}, {true}, {}, objNull, [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+						_cascade_menu=_lhs;
+					};
+					if( (typename _lhs) isEqualTo "STRING" ) then {
+						/* a hashmap is our actual menu - or better submenu */
+						_action=[ _menu_id, _menu_name, "", (fnc_set_loadout), {true}, {}, (_default_loadout + "\" + _lhs ), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+					};
+					if( (typename _lhs) isEqualTo "ARRAY" ) then {
+						/* a hashmap is our actual menu - or better submenu */
+						_action=[ _menu_id, _menu_name, "", (_lhs), {true}, {}, (_rhs), [0,0,0], 100] call ace_interact_menu_fnc_createAction;
+					};
+				};
+			};
 		};
 		if( (typeName _submenu) isEqualTo "HASHMAP" ) then {
 			/* a hashmap is our actual menu - or better submenu */
@@ -447,9 +477,9 @@ fcn_loadout_menu={
 			[_object, 0, _path, _action] call ace_interact_menu_fnc_addActionToObject;
 			_prefix_num=_prefix_num+1;
 			private _new_path = + _path + [_menu_id];
-			if( (typeName _submenu) isEqualTo "HASHMAP" ) then {
+			if( (typeName _cascade_menu) isEqualTo "HASHMAP" ) then {
 				/* DANGER: here comes the actual recursive part */
-				[_object, _submenu, _default_loadout, _new_path] call fcn_loadout_menu;
+				[_object, _cascade_menu, _default_loadout, _new_path] call fcn_loadout_menu;
 			};
 		};
 
